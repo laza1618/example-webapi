@@ -37,7 +37,13 @@ public class User implements Serializable, UserDetails {
 	
 	@NotBlank
 	@Size(max=40)
-	private String email;	
+	private String email;
+	
+	@NotBlank
+	private String username;
+	
+	@NotBlank 
+	private String password;
 	
 	
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -129,14 +135,14 @@ public class User implements Serializable, UserDetails {
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.password;
 	}
 
 
 	@Override
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.username;
 	}
 
 }
