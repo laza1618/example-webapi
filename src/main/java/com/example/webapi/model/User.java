@@ -1,6 +1,7 @@
 package com.example.webapi.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name="utilisateurs", uniqueConstraints = {
@@ -26,7 +29,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 		@UniqueConstraint(columnNames = "email")
 })
 @EntityListeners(AuditingEntityListener.class)
-public class User implements Serializable {
+public class User implements Serializable, UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -36,17 +39,8 @@ public class User implements Serializable {
 	private String name;
 	
 	@NotBlank
-	@Size(max=20)
-	private String username;
-	
-	@NotBlank
 	@Size(max=40)
-	private String email;
-	
-	
-	@NotBlank
-	@Size(max=100)
-	private String password;	
+	private String email;	
 	
 	
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -59,17 +53,6 @@ public class User implements Serializable {
 
 	public User() {
 		super();
-	}
-
-
-	public User(long id, @NotBlank @Size(max = 40) String name, @NotBlank @Size(max = 20) String username,
-			@NotBlank @Size(max = 40) String email, @NotBlank @Size(max = 100) String password) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.username = username;
-		this.email = email;
-		this.password = password;
 	}
 
 
@@ -92,17 +75,6 @@ public class User implements Serializable {
 		this.name = name;
 	}
 
-
-	public String getUsername() {
-		return username;
-	}
-
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-
 	public String getEmail() {
 		return email;
 	}
@@ -112,17 +84,6 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
-
-	public String getPassword() {
-		return password;
-	}
-
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-
 	public Set<Role> getRoles() {
 		return roles;
 	}
@@ -130,6 +91,55 @@ public class User implements Serializable {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
