@@ -33,7 +33,7 @@ public class Forfait implements Serializable {
 	private long id;
 	
 	@NotBlank
-	private float prix;
+	private Float prix;
 	
 	private String libelle;
 	
@@ -57,11 +57,11 @@ public class Forfait implements Serializable {
 		this.id = id;
 	}
 
-	public float getPrix() {
+	public Float getPrix() {
 		return prix;
 	}
 
-	public void setPrix(float prix) {
+	public void setPrix(Float prix) {
 		this.prix = prix;
 	}
 
