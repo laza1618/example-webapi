@@ -18,7 +18,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2).select()
             .apis(RequestHandlerSelectors
                 .basePackage("com.exelcia.webapi.controller"))
-            .paths(PathSelectors.regex("/.*"))
+            .paths(PathSelectors.regex("/api/.*"))
             .build().apiInfo(apiEndPointsInfo());
     }
     private ApiInfo apiEndPointsInfo() {
