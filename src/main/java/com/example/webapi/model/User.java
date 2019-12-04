@@ -24,10 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Table(name="utilisateurs", uniqueConstraints = {
-		@UniqueConstraint(columnNames = "username"),
-		@UniqueConstraint(columnNames = "email")
-})
+@Table(name="utilisateurs")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable, UserDetails {
 	@Id
