@@ -22,6 +22,7 @@ import javax.validation.constraints.Size;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name="utilisateurs")
@@ -57,6 +58,26 @@ public class User implements Serializable, UserDetails {
 	public User() {
 		super();
 	}
+	
+	
+
+
+	public User(@NotBlank @Size(max = 40) String name, @NotBlank @Size(max = 40) String email,
+			@NotBlank String username) {
+		super();
+		this.name = name;
+		this.email = email;
+		this.username = username;
+	}
+
+
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
 
 
 	public long getId() {

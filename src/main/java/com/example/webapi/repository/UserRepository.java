@@ -10,4 +10,6 @@ import com.example.webapi.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findUserByUsername(String username);
+	
+	Boolean existsByUsername(String username);
 }
