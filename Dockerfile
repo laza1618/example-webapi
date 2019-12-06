@@ -18,108 +18,108 @@ ENV TOMCAT_VERSION 8.5.49
 ENV TOMCAT_SHA512 263480a91a3678120bd3150e6a2b4cc48881bfe110eeb91c01f89ee13e2ef3c9f149bc7bdcbb3187f80ecaa3bad42c77ad38d56675b64af1afc4c4ca1d1eb9e6
 
 RUN set -eux; \
-	\
-	savedAptMark="$(apt-mark showmanual)"; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends \
-		gnupg dirmngr \
-		wget ca-certificates \
-	; \
-	\
-	ddist() { \
-		local f="$1"; shift; \
-		local distFile="$1"; shift; \
-		local success=; \
-		local distUrl=; \
-		for distUrl in \
-# https://issues.apache.org/jira/browse/INFRA-8753?focusedCommentId=14735394#comment-14735394
-			'https://www.apache.org/dyn/closer.cgi?action=download&filename=' \
-# if the version is outdated (or we're grabbing the .asc file), we might have to pull from the dist/archive :/
-			https://www-us.apache.org/dist/ \
-			https://www.apache.org/dist/ \
-			https://archive.apache.org/dist/ \
-		; do \
-			if wget -O "$f" "$distUrl$distFile" && [ -s "$f" ]; then \
-				success=1; \
-				break; \
-			fi; \
-		done; \
-		[ -n "$success" ]; \
-	}; \
-	\
-	ddist 'tomcat.tar.gz' "tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"; \
-	echo "$TOMCAT_SHA512 *tomcat.tar.gz" | sha512sum --strict --check -; \
-	ddist 'tomcat.tar.gz.asc' "tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	for key in $GPG_KEYS; do \
-		gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-	done; \
-	gpg --batch --verify tomcat.tar.gz.asc tomcat.tar.gz; \
-	tar -xf tomcat.tar.gz --strip-components=1; \
-	rm bin/*.bat; \
-	rm tomcat.tar.gz*; \
-	command -v gpgconf && gpgconf --kill all || :; \
-	rm -rf "$GNUPGHOME"; \
-	\
-	nativeBuildDir="$(mktemp -d)"; \
-	tar -xf bin/tomcat-native.tar.gz -C "$nativeBuildDir" --strip-components=1; \
-	apt-get install -y --no-install-recommends \
-		dpkg-dev \
-		gcc \
-		libapr1-dev \
-		libssl-dev \
-		make \
-	; \
-	( \
-		export CATALINA_HOME="$PWD"; \
-		cd "$nativeBuildDir/native"; \
-		gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
-		aprConfig="$(command -v apr-1-config)"; \
-		./configure \
-			--build="$gnuArch" \
-			--libdir="$TOMCAT_NATIVE_LIBDIR" \
-			--prefix="$CATALINA_HOME" \
-			--with-apr="$aprConfig" \
-			--with-java-home="$JAVA_HOME" \
-			--with-ssl=yes; \
-		make -j "$(nproc)"; \
-		make install; \
-	); \
-	rm -rf "$nativeBuildDir"; \
-	rm bin/tomcat-native.tar.gz; \
-	\
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-	apt-mark auto '.*' > /dev/null; \
-	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
-	find "$TOMCAT_NATIVE_LIBDIR" -type f -executable -exec ldd '{}' ';' \
-		| awk '/=>/ { print $(NF-1) }' \
-		| sort -u \
-		| xargs -r dpkg-query --search \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -r apt-mark manual \
-	; \
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
-# sh removes env vars it doesn't support (ones with periods)
-# https://github.com/docker-library/tomcat/issues/77
-	find ./bin/ -name '*.sh' -exec sed -ri 's|^#!/bin/sh$|#!/usr/bin/env bash|' '{}' +; \
-	\
-# fix permissions (especially for running as non-root)
-# https://github.com/docker-library/tomcat/issues/35
-	chmod -R +rX .; \
-	chmod 777 logs temp work
+    \
+    savedAptMark="$(apt-mark showmanual)"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+    gnupg dirmngr \
+    wget ca-certificates \
+    ; \
+    \
+    ddist() { \
+    local f="$1"; shift; \
+    local distFile="$1"; shift; \
+    local success=; \
+    local distUrl=; \
+    for distUrl in \
+    # https://issues.apache.org/jira/browse/INFRA-8753?focusedCommentId=14735394#comment-14735394
+    'https://www.apache.org/dyn/closer.cgi?action=download&filename=' \
+    # if the version is outdated (or we're grabbing the .asc file), we might have to pull from the dist/archive :/
+    https://www-us.apache.org/dist/ \
+    https://www.apache.org/dist/ \
+    https://archive.apache.org/dist/ \
+    ; do \
+    if wget -O "$f" "$distUrl$distFile" && [ -s "$f" ]; then \
+    success=1; \
+    break; \
+    fi; \
+    done; \
+    [ -n "$success" ]; \
+    }; \
+    \
+    ddist 'tomcat.tar.gz' "tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"; \
+    echo "$TOMCAT_SHA512 *tomcat.tar.gz" | sha512sum --strict --check -; \
+    ddist 'tomcat.tar.gz.asc' "tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz.asc"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for key in $GPG_KEYS; do \
+    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+    done; \
+    gpg --batch --verify tomcat.tar.gz.asc tomcat.tar.gz; \
+    tar -xf tomcat.tar.gz --strip-components=1; \
+    rm bin/*.bat; \
+    rm tomcat.tar.gz*; \
+    command -v gpgconf && gpgconf --kill all || :; \
+    rm -rf "$GNUPGHOME"; \
+    \
+    nativeBuildDir="$(mktemp -d)"; \
+    tar -xf bin/tomcat-native.tar.gz -C "$nativeBuildDir" --strip-components=1; \
+    apt-get install -y --no-install-recommends \
+    dpkg-dev \
+    gcc \
+    libapr1-dev \
+    libssl-dev \
+    make \
+    ; \
+    ( \
+    export CATALINA_HOME="$PWD"; \
+    cd "$nativeBuildDir/native"; \
+    gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+    aprConfig="$(command -v apr-1-config)"; \
+    ./configure \
+    --build="$gnuArch" \
+    --libdir="$TOMCAT_NATIVE_LIBDIR" \
+    --prefix="$CATALINA_HOME" \
+    --with-apr="$aprConfig" \
+    --with-java-home="$JAVA_HOME" \
+    --with-ssl=yes; \
+    make -j "$(nproc)"; \
+    make install; \
+    ); \
+    rm -rf "$nativeBuildDir"; \
+    rm bin/tomcat-native.tar.gz; \
+    \
+    # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+    apt-mark auto '.*' > /dev/null; \
+    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
+    find "$TOMCAT_NATIVE_LIBDIR" -type f -executable -exec ldd '{}' ';' \
+    | awk '/=>/ { print $(NF-1) }' \
+    | sort -u \
+    | xargs -r dpkg-query --search \
+    | cut -d: -f1 \
+    | sort -u \
+    | xargs -r apt-mark manual \
+    ; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    rm -rf /var/lib/apt/lists/*; \
+    \
+    # sh removes env vars it doesn't support (ones with periods)
+    # https://github.com/docker-library/tomcat/issues/77
+    find ./bin/ -name '*.sh' -exec sed -ri 's|^#!/bin/sh$|#!/usr/bin/env bash|' '{}' +; \
+    \
+    # fix permissions (especially for running as non-root)
+    # https://github.com/docker-library/tomcat/issues/35
+    chmod -R +rX .; \
+    chmod 777 logs temp work
 
 # verify Tomcat Native is working properly
 RUN set -e \
-	&& nativeLines="$(catalina.sh configtest 2>&1)" \
-	&& nativeLines="$(echo "$nativeLines" | grep 'Apache Tomcat Native')" \
-	&& nativeLines="$(echo "$nativeLines" | sort -u)" \
-	&& if ! echo "$nativeLines" | grep 'INFO: Loaded APR based Apache Tomcat Native library' >&2; then \
-		echo >&2 "$nativeLines"; \
-		exit 1; \
-	fi
+    && nativeLines="$(catalina.sh configtest 2>&1)" \
+    && nativeLines="$(echo "$nativeLines" | grep 'Apache Tomcat Native')" \
+    && nativeLines="$(echo "$nativeLines" | sort -u)" \
+    && if ! echo "$nativeLines" | grep 'INFO: Loaded APR based Apache Tomcat Native library' >&2; then \
+    echo >&2 "$nativeLines"; \
+    exit 1; \
+    fi
 
 EXPOSE 8080
-CMD ["catalina.sh", "run"] 
+CMD ["catalina.sh", "run"]
