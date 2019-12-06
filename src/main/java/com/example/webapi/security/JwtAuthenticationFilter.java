@@ -18,8 +18,6 @@ import com.example.webapi.exceptions.RessourceNotFoundException;
 import com.example.webapi.model.User;
 import com.example.webapi.repository.UserRepository;
 
-import io.jsonwebtoken.Jwts;
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	
 	@Autowired

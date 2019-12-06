@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.example.webapi.exceptions.RessourceNotFoundException;
 import com.example.webapi.model.Role;
 import com.example.webapi.model.RoleName;
 import com.example.webapi.model.User;
@@ -96,7 +95,7 @@ public class AuthController {
 					return repoRole.save(r);
 				}));
 			user.setRoles(Collections.singleton(role));
-			User result = repoUser.save(user);
+			repoUser.save(user);
 			URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/signin").build().toUri();
 			return ResponseEntity.created(location).body("Utilisateur crée");
 		}
